@@ -94,6 +94,20 @@ public protocol MessagesLayoutDelegate: class {
     /// All other senders: .messageTrailing(.zero)
     func cellBottomLabelAlignment(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> LabelAlignment
 
+    /// Specifies the vertical alignment of a `MessageCollectionViewCell`'s bottom label.
+    ///
+    /// - Parameters:
+    ///   - message: The `MessageType` that will be displayed by this cell.
+    ///   - indexPath: The `IndexPath` of the cell.
+    ///   - messagesCollectionView: The `MessagesCollectionView` in which this cell will be displayed.
+    ///
+    /// The default value returned by this method is determined by the messages `Sender`:
+    ///
+    /// Current Sender: .none
+    ///
+    /// All other senders: .none
+    func cellBottomLabelVerticalAlignment(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> LabelVerticalAlignment
+    
     /// Specifies the size of the `AvatarView` in a `MessageCollectionViewCell`.
     ///
     /// - Parameters:
@@ -160,6 +174,10 @@ public extension MessagesLayoutDelegate {
         return dataSource.isFromCurrentSender(message: message) ? .messageLeading(.zero) : .messageTrailing(.zero)
     }
 
+    func cellBottomLabelVerticalAlignment(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> LabelVerticalAlignment {
+        return .none
+    }
+    
     func avatarSize(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGSize {
         return CGSize(width: 30, height: 30)
     }

@@ -277,6 +277,7 @@ fileprivate extension MessagesCollectionViewFlowLayout {
         // Cell Bottom Label
         attributes.cellBottomLabelText = cellBottomLabelText(for: attributes) // little concerned about storing text here TODO
         attributes.cellBottomLabelAlignment = cellBottomLabelAlignment(for: attributes)
+        attributes.cellBottomLabelVerticalAlignment = cellBottomLabelVerticalAlignment(for: attributes)
         attributes.cellBottomLabelMaxWidth = cellBottomLabelMaxWidth(for: attributes)
         attributes.cellBottomLabelSize = cellBottomLabelSize(for: attributes)
         
@@ -500,7 +501,7 @@ private extension MessagesCollectionViewFlowLayout {
     
 }
 
-// MARK: - Cell Bottom Label Calculations  [ H - K ]
+// MARK: - Cell Bottom Label Calculations  [ H - L ]
 
 private extension MessagesCollectionViewFlowLayout {
     
@@ -525,6 +526,16 @@ private extension MessagesCollectionViewFlowLayout {
     }
     
     // J
+    
+    /// Returns the alignment of the cell's bottom label.
+    ///
+    /// - Parameters:
+    ///   - attributes: The `MessageIntermediateLayoutAttributes` containing the `MessageType` object.
+    func cellBottomLabelVerticalAlignment(for attributes: MessageIntermediateLayoutAttributes) -> LabelVerticalAlignment {
+        return messagesLayoutDelegate.cellBottomLabelVerticalAlignment(for: attributes.message, at: attributes.indexPath, in: messagesCollectionView)
+    }
+    
+    // K
     
     /// Returns the max available width for the cell's bottom label considering the specified layout information.
     ///
@@ -565,7 +576,7 @@ private extension MessagesCollectionViewFlowLayout {
         
     }
     
-    // K
+    // L
     
     /// Returns the size of the cell's bottom label considering the specified layout information.
     ///
@@ -584,11 +595,11 @@ private extension MessagesCollectionViewFlowLayout {
 
 }
 
-// MARK: - Cell Top Label Size Calculations [ L - O ]
+// MARK: - Cell Top Label Size Calculations [ M - P ]
 
 private extension MessagesCollectionViewFlowLayout {
     
-    // L
+    // M
     
     /// Returns the attributed text for the cell's top label.
     ///
@@ -598,7 +609,7 @@ private extension MessagesCollectionViewFlowLayout {
         return messagesDataSource.cellTopLabelAttributedText(for: attributes.message, at: attributes.indexPath)
     }
     
-    // M
+    // N
     
     /// Returns the alignment of the cell's top label.
     ///
@@ -608,7 +619,7 @@ private extension MessagesCollectionViewFlowLayout {
         return messagesLayoutDelegate.cellTopLabelAlignment(for: attributes.message, at: attributes.indexPath, in: messagesCollectionView)
     }
     
-    // N
+    // O
     
     /// Returns the max available width for the cell's top label considering the specified layout information.
     ///
@@ -649,7 +660,7 @@ private extension MessagesCollectionViewFlowLayout {
         
     }
     
-    // O
+    // P
     
     /// Returns the size of the cell's top label considering the specified layout information.
     ///
@@ -671,7 +682,7 @@ private extension MessagesCollectionViewFlowLayout {
 
 private extension MessagesCollectionViewFlowLayout {
     
-    // P
+    // Q
     
     /// The height of a `MessageCollectionViewCell`.
     ///
@@ -681,22 +692,35 @@ private extension MessagesCollectionViewFlowLayout {
         
         var cellHeight: CGFloat = 0
         
-        switch attributes.avatarVertical {
-        case .cellTop:
+        switch (attributes.avatarVertical, attributes.cellBottomLabelVerticalAlignment) {
+        case (.cellTop, let verticalAlignment):
             cellHeight += max(attributes.avatarSize.height, attributes.cellTopLabelSize.height)
-            cellHeight += attributes.cellBottomLabelSize.height
             cellHeight += attributes.messageContainerSize.height
             cellHeight += attributes.messageVerticalPadding
-        case .cellBottom:
-            cellHeight += max(attributes.avatarSize.height, attributes.cellBottomLabelSize.height)
+            
+            if verticalAlignment == .none {
+                cellHeight += attributes.cellBottomLabelSize.height
+            }
+            
+        case (.cellBottom, let verticalAlignment):
             cellHeight += attributes.cellTopLabelSize.height
             cellHeight += attributes.messageContainerSize.height
             cellHeight += attributes.messageVerticalPadding
-        case .messageTop, .messageCenter, .messageBottom:
+            
+            if verticalAlignment == .none {
+                cellHeight += max(attributes.avatarSize.height, attributes.cellBottomLabelSize.height)
+            } else {
+                cellHeight += attributes.avatarSize.height
+            }
+            
+        case (.messageTop, let verticalAlignment), (.messageCenter, let verticalAlignment), (.messageBottom, let verticalAlignment):
             cellHeight += max(attributes.avatarSize.height, attributes.messageContainerSize.height)
             cellHeight += attributes.messageVerticalPadding
             cellHeight += attributes.cellTopLabelSize.height
-            cellHeight += attributes.cellBottomLabelSize.height
+            
+            if verticalAlignment == .none {
+                cellHeight += attributes.cellBottomLabelSize.height
+            }
         }
         
         return cellHeight
@@ -704,11 +728,11 @@ private extension MessagesCollectionViewFlowLayout {
     
 }
 
-// MARK: - Cell Content Origin Calculations [ Q - T ]
+// MARK: - Cell Content Origin Calculations [ R - U ]
 
 fileprivate extension MessagesCollectionViewFlowLayout {
     
-    // Q
+    // R
     
     /// Returns the origin point for the `AvatarView`'s frame.
     ///
@@ -727,16 +751,20 @@ fileprivate extension MessagesCollectionViewFlowLayout {
             origin.x = contentFrame.width - attributes.avatarSize.width
         }
         
-        switch attributes.avatarVertical {
-        case .cellTop:
+        switch (attributes.avatarVertical, attributes.cellBottomLabelVerticalAlignment) {
+        case (.cellTop, _):
             origin.y = 0
-        case .cellBottom:
+        case (.cellBottom, _):
             origin.y = contentFrame.height - attributes.avatarSize.height
-        case .messageTop:
+        case (.messageTop, _):
             origin.y = attributes.cellTopLabelSize.height + attributes.messageContainerPadding.top
-        case .messageBottom:
-            origin.y = contentFrame.height - attributes.avatarSize.height - attributes.cellBottomLabelSize.height - attributes.messageContainerPadding.bottom
-        case .messageCenter:
+        case (.messageBottom, let verticalAlignment):
+            origin.y = contentFrame.height - attributes.avatarSize.height - attributes.messageContainerPadding.bottom
+            
+            if verticalAlignment == .none {
+                origin.y -= attributes.cellBottomLabelSize.height
+            }
+        case (.messageCenter, _):
             let messageMidY = attributes.messageContainerSize.height / 2
             let avatarMidY = attributes.avatarSize.height / 2
             origin.y = attributes.cellTopLabelSize.height + attributes.messageContainerPadding.top + messageMidY - avatarMidY
@@ -745,7 +773,7 @@ fileprivate extension MessagesCollectionViewFlowLayout {
         return origin
     }
     
-    // R
+    // S
     
     /// Returns the origin point for the `MessageContainerView`'s frame.
     ///
@@ -770,7 +798,7 @@ fileprivate extension MessagesCollectionViewFlowLayout {
         
     }
     
-    // S
+    // T
     
     /// Returns the origin point for the cell's bottom label's frame.
     ///
@@ -782,28 +810,58 @@ fileprivate extension MessagesCollectionViewFlowLayout {
         
         var origin = CGPoint(x: 0, y: attributes.cellTopLabelSize.height + attributes.messageContainerSize.height + attributes.messageVerticalPadding)
         
-        switch (attributes.cellBottomLabelAlignment, attributes.avatarHorizontal) {
-        case (.cellLeading, _):
+        switch (attributes.cellBottomLabelAlignment, attributes.cellBottomLabelVerticalAlignment, attributes.avatarHorizontal) {
+        case (.cellLeading, _, _):
             origin.x = 0
-        case (.cellCenter, _):
+        case (.cellCenter, _, _):
             origin.x = contentFrame.width / 2 - (attributes.cellBottomLabelSize.width / 2)
-        case (.cellTrailing, _):
+        case (.cellTrailing, _, _):
             origin.x = contentFrame.width - attributes.cellBottomLabelSize.width
-        case (.messageLeading, .cellLeading):
-            origin.x = attributes.avatarSize.width + attributes.messageContainerPadding.left
-        case (.messageLeading, .cellTrailing):
-            origin.x = contentFrame.width - attributes.avatarSize.width - attributes.messageContainerPadding.right - attributes.messageContainerSize.width
-        case (.messageTrailing, .cellTrailing):
-            origin.x = contentFrame.width - attributes.avatarSize.width - attributes.messageContainerPadding.right - attributes.cellBottomLabelSize.width
-        case (.messageTrailing, .cellLeading):
-            origin.x = attributes.avatarSize.width + attributes.messageContainerPadding.left + attributes.messageContainerSize.width - attributes.cellBottomLabelSize.width
+        case (.messageLeading, let verticalAlignment, .cellLeading):
+            if verticalAlignment == .none {
+                origin.x = attributes.avatarSize.width + attributes.messageContainerPadding.left
+            } else {
+                origin.x = attributes.avatarSize.width + attributes.messageContainerPadding.left + attributes.messageContainerSize.width
+            }
+        case (.messageLeading, let verticalAlignment, .cellTrailing):
+            if verticalAlignment == .none {
+                origin.x = contentFrame.width - attributes.avatarSize.width - attributes.messageContainerPadding.right - attributes.messageContainerSize.width
+            } else {
+                origin.x = contentFrame.width - attributes.messageContainerPadding.right
+            }
+        case (.messageTrailing, let verticalAlignment, .cellTrailing):
+            if verticalAlignment == .none {
+                origin.x = contentFrame.width - attributes.avatarSize.width - attributes.messageContainerPadding.right - attributes.cellBottomLabelSize.width
+            } else {
+                origin.x = contentFrame.width - attributes.messageContainerSize.width - attributes.cellBottomLabelSize.width - attributes.messageContainerPadding.right
+            }
+        case (.messageTrailing, let verticalAlignment, .cellLeading):
+            if verticalAlignment == .none {
+                origin.x = attributes.avatarSize.width + attributes.messageContainerPadding.left + attributes.messageContainerSize.width - attributes.cellBottomLabelSize.width
+            } else {
+                let leftOffset = attributes.avatarSize.width + attributes.messageContainerPadding.left
+                origin.x = -(attributes.cellBottomLabelSize.width - leftOffset)
+            }
+        }
+        
+        switch attributes.cellBottomLabelVerticalAlignment {
+        case .none:
+            break
+        case .messageTop:
+            origin.y = attributes.cellTopLabelSize.height + attributes.messageContainerPadding.top
+        case .messageBottom:
+            origin.y = contentFrame.height - attributes.cellBottomLabelSize.height - attributes.messageContainerPadding.bottom
+        case .messageCenter:
+            let messageMidY = attributes.messageContainerSize.height / 2
+            let avatarMidY = attributes.cellBottomLabelSize.height / 2
+            origin.y = attributes.cellTopLabelSize.height + attributes.messageContainerPadding.top + messageMidY - avatarMidY
         }
         
         return origin
         
     }
     
-    // T
+    // U
     
     /// Returns the origin point for the cell's top label's frame.
     ///

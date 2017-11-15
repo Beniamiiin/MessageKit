@@ -86,6 +86,7 @@ final class MessageIntermediateLayoutAttributes {
     var cellBottomLabelSize: CGSize = .zero
     var cellBottomLabelMaxWidth: CGFloat = 0
     var cellBottomLabelAlignment: LabelAlignment = .cellTrailing(.zero)
+    var cellBottomLabelVerticalAlignment: LabelVerticalAlignment = .none
 
     var cellBottomLabelVerticalInsets: CGFloat {
         let cellBottomLabelInsets = cellBottomLabelAlignment.insets
