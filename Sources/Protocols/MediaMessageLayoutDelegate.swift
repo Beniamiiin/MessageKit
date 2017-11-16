@@ -49,6 +49,7 @@ public protocol MediaMessageLayoutDelegate: MessagesLayoutDelegate {
     ///
     /// The default value returned by this method uses `AVMakeRect(aspectRatio:insideRect:)` with a bounding
     /// rect using the `maxWidth` and `.greatestFiniteMagnitude` for the height.
+    /// If thumbnail for message.data == remotePhoto is nil, then height will be equal width.
     func heightForMedia(message: MessageType, at indexPath: IndexPath, with maxWidth: CGFloat, in messagesCollectionView: MessagesCollectionView) -> CGFloat
 
 }
@@ -64,6 +65,13 @@ public extension MediaMessageLayoutDelegate {
         case .photo(let image), .video(_, let image):
             let boundingRect = CGRect(origin: .zero, size: CGSize(width: maxWidth, height: .greatestFiniteMagnitude))
             return AVMakeRect(aspectRatio: image.size, insideRect: boundingRect).height
+        case .remotePhoto(_, let image):
+            if let image = image {
+                let boundingRect = CGRect(origin: .zero, size: CGSize(width: maxWidth, height: .greatestFiniteMagnitude))
+                return AVMakeRect(aspectRatio: image.size, insideRect: boundingRect).height
+            } else {
+                return widthForMedia(message: message, at: indexPath, with: maxWidth, in: messagesCollectionView)
+            }
         default:
             return 0
         }

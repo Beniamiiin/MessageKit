@@ -58,6 +58,7 @@ open class MessageCollectionViewCell<ContentView: UIView>: UICollectionViewCell,
     }()
 
     open weak var delegate: MessageCellDelegate?
+    open weak var dataSource: MessageCellDataSource?
 
     var messageTapGesture: UITapGestureRecognizer?
 

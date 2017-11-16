@@ -34,35 +34,67 @@ open class MediaMessageCell: MessageCollectionViewCell<UIImageView> {
         playButtonView.frame.size = CGSize(width: 35, height: 35)
         return playButtonView
     }()
+    
+    open lazy var activityIndicatorView: UIActivityIndicatorView = {
+        let activityIndicatorView = UIActivityIndicatorView()
+        activityIndicatorView.activityIndicatorViewStyle = .gray
+        return activityIndicatorView
+    }()
 
     // MARK: - Methods
 
     private func setupConstraints() {
         playButtonView.translatesAutoresizingMaskIntoConstraints = false
 
-        let centerX = playButtonView.centerXAnchor.constraint(equalTo: messageContainerView.centerXAnchor)
-        let centerY = playButtonView.centerYAnchor.constraint(equalTo: messageContainerView.centerYAnchor)
-        let width = playButtonView.widthAnchor.constraint(equalToConstant: playButtonView.bounds.width)
-        let height = playButtonView.heightAnchor.constraint(equalToConstant: playButtonView.bounds.height)
+        let playButtonViewCenterX = playButtonView.centerXAnchor.constraint(equalTo: messageContainerView.centerXAnchor)
+        let playButtonViewCenterY = playButtonView.centerYAnchor.constraint(equalTo: messageContainerView.centerYAnchor)
+        let playButtonViewWidth = playButtonView.widthAnchor.constraint(equalToConstant: playButtonView.bounds.width)
+        let playButtonViewHeight = playButtonView.heightAnchor.constraint(equalToConstant: playButtonView.bounds.height)
 
-        NSLayoutConstraint.activate([centerX, centerY, width, height])
+        NSLayoutConstraint.activate([playButtonViewCenterX, playButtonViewCenterY, playButtonViewWidth, playButtonViewHeight])
+        
+        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let activityIndicatorViewCenterX = activityIndicatorView.centerXAnchor.constraint(equalTo: messageContainerView.centerXAnchor)
+        let activityIndicatorViewCenterY = activityIndicatorView.centerYAnchor.constraint(equalTo: messageContainerView.centerYAnchor)
+        let activityIndicatorViewWidth = activityIndicatorView.widthAnchor.constraint(equalToConstant: activityIndicatorView.bounds.width)
+        let activityIndicatorViewHeight = activityIndicatorView.heightAnchor.constraint(equalToConstant: activityIndicatorView.bounds.height)
+        
+        NSLayoutConstraint.activate([activityIndicatorViewCenterX, activityIndicatorViewCenterY, activityIndicatorViewWidth, activityIndicatorViewHeight])
     }
 
     override func setupSubviews() {
         super.setupSubviews()
         messageContentView.addSubview(playButtonView)
+        messageContentView.addSubview(activityIndicatorView)
         setupConstraints()
     }
 
     open override func configure(with message: MessageType, at indexPath: IndexPath, and messagesCollectionView: MessagesCollectionView) {
         super.configure(with: message, at: indexPath, and: messagesCollectionView)
+        
+        // Check if dataSource has already been set to reduce number of assignments
+        if dataSource == nil, let cellDataSource = messagesCollectionView.messageCellDataSource {
+            dataSource = cellDataSource
+        }
+        
         switch message.data {
         case .photo(let image):
             messageContentView.image = image
             playButtonView.isHidden = true
+            activityIndicatorView.isHidden = true
+        case .remotePhoto(let url, let image):
+            messageContentView.image = image
+            playButtonView.isHidden = true
+            activityIndicatorView.isHidden = !(image == nil)
+            activityIndicatorView.startAnimating()
+            dataSource?.downloadImage(by: url, for: messageContentView, in: self) {
+                self.activityIndicatorView.stopAnimating()
+            }
         case .video(_, let image):
             messageContentView.image = image
             playButtonView.isHidden = false
+            activityIndicatorView.isHidden = true
         default:
             break
         }

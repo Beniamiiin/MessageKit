@@ -23,46 +23,27 @@
  */
 
 import Foundation
-import class CoreLocation.CLLocation
 
-/// An enum representing the kind of message and its underlying data.
-public enum MessageData {
+public typealias DownloadImageCompletionClosure = (() -> Void)
 
-    /// A standard text message.
+/// A protocol used by `MessageCollectionViewCell` subclasses to download content(photo) for cell.
+public protocol MessageCellDataSource: class {
+
+    /// A helper method to download image for showing in a cell.
     ///
-    /// NOTE: The font used for this message will be the value of the
-    /// `messageLabelFont` property in the `MessagesCollectionViewFlowLayout` object.
+    /// - Parameters:
+    ///   - url: The url for downloading image.
+    ///   - imageView: The imageView where will be set the image when it is downloaded.
+    ///   - cell: The cell where have to show photo.
+    ///   - completion: The completion block will be called when the image is downloaded.
     ///
-    /// Tip: Using `MessageData.attributedText(NSAttributedString)` doesn't require you
-    /// to set this property and results in higher performance.
-    case text(String)
+    /// You have to call the completion block for stoping activityIndicatorView animating.
+    func downloadImage(by url: URL, for imageView: UIImageView, in cell: MessageCollectionViewCell<UIImageView>, completion: @escaping DownloadImageCompletionClosure)
     
-    /// A message with attributed text.
-    case attributedText(NSAttributedString)
+}
 
-    /// A photo message.
-    case photo(UIImage)
+public extension MessageCellDataSource {
 
-    /// A photo message with url.
-    case remotePhoto(file: URL, thumbnail: UIImage?)
-    
-    /// A video message.
-    case video(file: URL, thumbnail: UIImage)
-
-    /// A location message.
-    case location(CLLocation)
-
-    /// An emoji message.
-    case emoji(String)
-
-    // MARK: - Not supported yet
-
-//    case audio(Data)
-//
-//    case system(String)
-//    
-//    case custom(Any)
-//    
-//    case placeholder
+    func downloadImage(by url: URL, for imageView: UIImageView, in cell: MessageCollectionViewCell<UIImageView>, completion: @escaping DownloadImageCompletionClosure) {}
 
 }
