@@ -32,6 +32,9 @@ public struct Avatar {
     /// The image to be used for an `AvatarView`.
     public let image: UIImage?
     
+    /// The image url to be used for an `AvatarView`.
+    public let imageURL: URL?
+    
     /// The placeholder initials to be used in the case where no image is provided.
     ///
     /// The default value of this property is "?".
@@ -39,8 +42,9 @@ public struct Avatar {
     
     // MARK: - Initializer
     
-    public init(image: UIImage? = nil, initals: String = "?") {
+    public init(image: UIImage? = nil, imageURL: URL? = nil, initals: String = "?") {
         self.image = image
+        self.imageURL = imageURL
         self.initals = initals
     }
     

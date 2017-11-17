@@ -40,10 +40,20 @@ public protocol MessageCellDataSource: class {
     /// You have to call the completion block for stoping activityIndicatorView animating.
     func downloadImage(by url: URL, for imageView: UIImageView, in cell: MessageCollectionViewCell<UIImageView>, completion: @escaping DownloadImageCompletionClosure)
     
+    /// A helper method to download avatar image for showing in a cell.
+    ///
+    /// - Parameters:
+    ///   - url: The url for downloading image.
+    ///   - imageView: The imageView where will be set the image when it is downloaded.
+    ///   - cell: The cell where have to show photo.
+    func downloadAvatarImage<T>(by url: URL, for imageView: UIImageView, in cell: MessageCollectionViewCell<T>)
+    
 }
 
 public extension MessageCellDataSource {
 
     func downloadImage(by url: URL, for imageView: UIImageView, in cell: MessageCollectionViewCell<UIImageView>, completion: @escaping DownloadImageCompletionClosure) {}
 
+    func downloadAvatarImage<T>(by url: URL, for imageView: UIImageView, in cell: MessageCollectionViewCell<T>) {}
+    
 }

@@ -73,11 +73,6 @@ open class MediaMessageCell: MessageCollectionViewCell<UIImageView> {
     open override func configure(with message: MessageType, at indexPath: IndexPath, and messagesCollectionView: MessagesCollectionView) {
         super.configure(with: message, at: indexPath, and: messagesCollectionView)
         
-        // Check if dataSource has already been set to reduce number of assignments
-        if dataSource == nil, let cellDataSource = messagesCollectionView.messageCellDataSource {
-            dataSource = cellDataSource
-        }
-        
         switch message.data {
         case .photo(let image):
             messageContentView.image = image

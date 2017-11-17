@@ -119,6 +119,11 @@ open class MessageCollectionViewCell<ContentView: UIView>: UICollectionViewCell,
             delegate = cellDelegate
         }
 
+        // Check if dataSource has already been set to reduce number of assignments
+        if dataSource == nil, let cellDataSource = messagesCollectionView.messageCellDataSource {
+            dataSource = cellDataSource
+        }
+        
         if let displayDelegate = messagesCollectionView.messagesDisplayDelegate {
 
             let messageColor = displayDelegate.backgroundColor(for: message, at: indexPath, in: messagesCollectionView)
@@ -139,8 +144,12 @@ open class MessageCollectionViewCell<ContentView: UIView>: UICollectionViewCell,
             avatarView.set(avatar: avatar)
             cellTopLabel.attributedText = topLabelText
             cellBottomLabel.attributedText = bottomLabelText
+            
+            if let imageURL = avatar.imageURL {
+                self.dataSource?.downloadAvatarImage(by: imageURL, for: avatarView.imageView, in: self)
+            }
         }
-
+        
     }
 
     func setupGestureRecognizers() {
