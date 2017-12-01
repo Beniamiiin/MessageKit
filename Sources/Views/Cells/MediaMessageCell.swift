@@ -73,6 +73,8 @@ open class MediaMessageCell: MessageCollectionViewCell<UIImageView> {
     open override func configure(with message: MessageType, at indexPath: IndexPath, and messagesCollectionView: MessagesCollectionView) {
         super.configure(with: message, at: indexPath, and: messagesCollectionView)
         
+        dataSource?.setupContentMode(for: messageContentView, in: self)
+        
         switch message.data {
         case .photo(let image):
             messageContentView.image = image

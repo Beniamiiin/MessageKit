@@ -48,6 +48,13 @@ public protocol MessageCellDataSource: class {
     ///   - cell: The cell where have to show photo.
     func downloadAvatarImage<T>(by url: URL, for imageView: UIImageView, in cell: MessageCollectionViewCell<T>)
     
+    /// A helper method to setup contentMode of image view in a cell.
+    ///
+    /// - Parameters:
+    ///   - imageView: The imageView in which need setup content mode.
+    ///   - cell: The cell where have to show photo.
+    func setupContentMode(for imageView: UIImageView, in cell: MessageCollectionViewCell<UIImageView>)
+    
 }
 
 public extension MessageCellDataSource {
@@ -55,5 +62,7 @@ public extension MessageCellDataSource {
     func downloadImage(by url: URL, for imageView: UIImageView, in cell: MessageCollectionViewCell<UIImageView>, completion: @escaping DownloadImageCompletionClosure) {}
 
     func downloadAvatarImage<T>(by url: URL, for imageView: UIImageView, in cell: MessageCollectionViewCell<T>) {}
+    
+    func setupContentMode(for imageView: UIImageView, in cell: MessageCollectionViewCell<UIImageView>) {}
     
 }
