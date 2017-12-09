@@ -40,6 +40,8 @@ open class MessagesCollectionView: UICollectionView {
 
     open var showsDateHeaderAfterTimeInterval: TimeInterval = 3600
 
+    open var customContentInset: UIEdgeInsets?
+    
     private var indexPathForLastItem: IndexPath? {
 
         let lastSection = numberOfSections > 0 ? numberOfSections - 1 : 0

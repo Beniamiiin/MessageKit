@@ -87,7 +87,7 @@ open class MessagesViewController: UIViewController {
             defer { isFirstLayout = false }
 
             addKeyboardObservers()
-            messagesCollectionView.contentInset.bottom = keyboardOffsetFrame.height
+            messagesCollectionView.contentInset.bottom = keyboardOffsetFrame.height + (messagesCollectionView.customContentInset?.bottom ?? 0)
             messagesCollectionView.scrollIndicatorInsets.bottom = keyboardOffsetFrame.height
             
             //Scroll to bottom at first load
@@ -155,7 +155,7 @@ open class MessagesViewController: UIViewController {
             let navigationBarInset = navigationController?.navigationBar.frame.height ?? 0
             let statusBarInset: CGFloat = UIApplication.shared.isStatusBarHidden ? 0 : 20
             let topInset = navigationBarInset + statusBarInset
-            messagesCollectionView.contentInset.top = topInset
+            messagesCollectionView.contentInset.top = topInset + (messagesCollectionView.customContentInset?.top ?? 0)
             messagesCollectionView.scrollIndicatorInsets.top = topInset
         }
     }
@@ -301,13 +301,13 @@ fileprivate extension MessagesViewController {
         if (keyboardEndFrame.origin.y + keyboardEndFrame.size.height) > UIScreen.main.bounds.height {
             // Hardware keyboard is found
             let bottomInset = view.frame.size.height - keyboardEndFrame.origin.y - iPhoneXBottomInset
-            messagesCollectionView.contentInset.bottom = bottomInset
+            messagesCollectionView.contentInset.bottom = bottomInset + (messagesCollectionView.customContentInset?.bottom ?? 0)
             messagesCollectionView.scrollIndicatorInsets.bottom = bottomInset
 
         } else {
             //Software keyboard is found
             let bottomInset = keyboardEndFrame.height > keyboardOffsetFrame.height ? (keyboardEndFrame.height - iPhoneXBottomInset) : keyboardOffsetFrame.height
-            messagesCollectionView.contentInset.bottom = bottomInset
+            messagesCollectionView.contentInset.bottom = bottomInset + (messagesCollectionView.customContentInset?.bottom ?? 0)
             messagesCollectionView.scrollIndicatorInsets.bottom = bottomInset
         }
         
